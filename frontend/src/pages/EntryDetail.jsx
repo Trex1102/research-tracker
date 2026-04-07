@@ -12,6 +12,26 @@ import { DEADLINE_FIELDS, RANKING_COLORS, PAPER_VISIBLE_STATUSES, STATUS_LABELS 
 import { getAllDeadlines, fmtDate, getUrgency, URGENCY_COLORS, URGENCY_BAR_COLORS } from '../lib/utils'
 import { isPast } from 'date-fns'
 
+// Defined outside component — stable component identity across renders
+function Section({ title, children }) {
+  return (
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
+      <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">{title}</h3>
+      {children}
+    </div>
+  )
+}
+
+function Row({ label, value }) {
+  if (!value) return null
+  return (
+    <div className="flex justify-between gap-4 py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
+      <span className="text-sm text-gray-500 dark:text-gray-400 flex-shrink-0">{label}</span>
+      <span className="text-sm text-gray-900 dark:text-white text-right">{value}</span>
+    </div>
+  )
+}
+
 export default function EntryDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -36,20 +56,6 @@ export default function EntryDetail() {
 
   const showPaper = PAPER_VISIBLE_STATUSES.includes(entry.status)
   const allDeadlines = getAllDeadlines(entry)
-
-  const Section = ({ title, children }) => (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5">
-      <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">{title}</h3>
-      {children}
-    </div>
-  )
-
-  const Row = ({ label, value }) => value ? (
-    <div className="flex justify-between gap-4 py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
-      <span className="text-sm text-gray-500 dark:text-gray-400 flex-shrink-0">{label}</span>
-      <span className="text-sm text-gray-900 dark:text-white text-right">{value}</span>
-    </div>
-  ) : null
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">

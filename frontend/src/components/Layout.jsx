@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Plus, User, LogOut,
-  Menu, X, FlaskConical, Calendar
+  Menu, FlaskConical, Calendar
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import DarkModeToggle from './DarkModeToggle'
@@ -13,22 +13,10 @@ const navItems = [
   { to: '/profile', icon: User, label: 'Profile' },
 ]
 
-export default function Layout({ children }) {
-  const { user, signOut } = useAuth()
-  const navigate = useNavigate()
-  const [mobileOpen, setMobileOpen] = useState(false)
-
-  const handleSignOut = async () => {
-    await signOut()
-    navigate('/login')
-  }
-
-  const initials = user?.user_metadata?.full_name
-    ? user.user_metadata.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-    : user?.email?.[0]?.toUpperCase() || '?'
-
-  const Sidebar = ({ mobile = false }) => (
-    <div className={`flex flex-col h-full ${mobile ? '' : ''}`}>
+// Defined OUTSIDE Layout so React never re-mounts it on Layout re-renders
+function Sidebar({ initials, email, onNavClick, onSignOut }) {
+  return (
+    <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-4 py-5 border-b border-gray-200 dark:border-gray-800">
         <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -43,7 +31,7 @@ export default function Layout({ children }) {
           <NavLink
             key={to}
             to={to}
-            onClick={() => mobile && setMobileOpen(false)}
+            onClick={onNavClick}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isActive
@@ -60,7 +48,7 @@ export default function Layout({ children }) {
         <div className="pt-2">
           <NavLink
             to="/entries/new"
-            onClick={() => mobile && setMobileOpen(false)}
+            onClick={onNavClick}
             className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
           >
             <Plus size={17} />
@@ -75,11 +63,11 @@ export default function Layout({ children }) {
           <div className="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-700 dark:text-indigo-300 text-xs font-semibold flex-shrink-0">
             {initials}
           </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400 truncate flex-1">{user?.email}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 truncate flex-1">{email}</p>
           <DarkModeToggle />
         </div>
         <button
-          onClick={handleSignOut}
+          onClick={onSignOut}
           className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-600 dark:hover:text-red-400 transition-colors"
         >
           <LogOut size={16} />
@@ -88,23 +76,47 @@ export default function Layout({ children }) {
       </div>
     </div>
   )
+}
+
+export default function Layout({ children }) {
+  const { user, signOut } = useAuth()
+  const navigate = useNavigate()
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  const handleSignOut = async () => {
+    await signOut()
+    navigate('/login')
+  }
+
+  const initials = user?.user_metadata?.full_name
+    ? user.user_metadata.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : user?.email?.[0]?.toUpperCase() || '?'
+
+  const closeMobile = () => setMobileOpen(false)
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-950 overflow-hidden">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex md:flex-col w-56 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex-shrink-0">
-        <Sidebar />
+        <Sidebar
+          initials={initials}
+          email={user?.email}
+          onNavClick={null}
+          onSignOut={handleSignOut}
+        />
       </aside>
 
       {/* Mobile overlay */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-40 flex">
-          <div
-            className="fixed inset-0 bg-black/50"
-            onClick={() => setMobileOpen(false)}
-          />
+          <div className="fixed inset-0 bg-black/50" onClick={closeMobile} />
           <aside className="relative z-50 w-56 bg-white dark:bg-gray-900 flex flex-col">
-            <Sidebar mobile />
+            <Sidebar
+              initials={initials}
+              email={user?.email}
+              onNavClick={closeMobile}
+              onSignOut={handleSignOut}
+            />
           </aside>
         </div>
       )}
