@@ -1,20 +1,12 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { parseISO, format, isPast, differenceInDays } from 'date-fns'
+import { parseISO, format, isPast } from 'date-fns'
 import { useEntries } from '../hooks/useEntries'
 import StatusBadge from '../components/StatusBadge'
 import LoadingSpinner from '../components/LoadingSpinner'
 import CountdownTimer from '../components/CountdownTimer'
 import { DEADLINE_FIELDS } from '../lib/constants'
-import { getUrgency, URGENCY_COLORS, URGENCY_BAR_COLORS } from '../lib/utils'
-
-function getUrgencyLabel(date) {
-  if (isPast(date)) return 'Past'
-  const days = differenceInDays(date, new Date())
-  if (days < 7) return `${days}d left`
-  if (days < 30) return `${days}d left`
-  return `${days}d left`
-}
+import { getUrgency, URGENCY_BAR_COLORS } from '../lib/utils'
 
 export default function Timeline() {
   const { data: entries = [], isLoading } = useEntries()
@@ -96,7 +88,6 @@ export default function Timeline() {
 
       <div className="space-y-8">
         {grouped.map(([month, monthEvents]) => {
-          const hasFuture = monthEvents.some(e => !isPast(e.date))
           const isPastMonth = monthEvents.every(e => isPast(e.date))
           return (
             <div key={month}>

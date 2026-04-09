@@ -47,6 +47,7 @@ cp .env.example .env
 
 In the [Supabase SQL Editor](https://app.supabase.com), paste and run:
 - `supabase/migrations/001_initial.sql`
+- `supabase/migrations/003_data_integrity.sql`
 
 ### 4. Start dev server
 
@@ -68,14 +69,18 @@ Open `http://localhost:5173`
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
 4. Push to `main` — the `deploy.yml` workflow will build and deploy automatically.
-5. Your app will be at `https://yourusername.github.io/research-tracker/`
+5. Your app will be at:
+   - `https://yourusername.github.io/` if the repository is named `yourusername.github.io`
+   - `https://yourusername.github.io/research-tracker/` for a normal project repository
 
-> **Important:** In Supabase Dashboard → Authentication → URL Configuration, add your GitHub Pages URL to **Site URL** and **Redirect URLs** (e.g. `https://yourusername.github.io/research-tracker/**`).
+> **Important:** In Supabase Dashboard → Authentication → URL Configuration, add your GitHub Pages URL to **Site URL** and **Redirect URLs**. Examples:
+> - `https://yourusername.github.io/**` for a `yourusername.github.io` repo
+> - `https://yourusername.github.io/research-tracker/**` for a project repo
 
 ### Backend → Supabase (free tier)
 
 1. Create a project at [supabase.com](https://supabase.com)
-2. Run `supabase/migrations/001_initial.sql` in the SQL Editor
+2. Run `supabase/migrations/001_initial.sql` and `supabase/migrations/003_data_integrity.sql` in the SQL Editor
 3. Note your **Project URL** and **anon/public key** from Settings > API
 
 ### Edge Function (Email Reminders)
@@ -95,7 +100,8 @@ supabase link --project-ref your-project-ref
 # Set secrets
 supabase secrets set RESEND_API_KEY=re_xxx
 supabase secrets set FROM_EMAIL="Research Tracker <reminders@yourdomain.com>"
-supabase secrets set APP_URL=https://yourusername.github.io/research-tracker
+supabase secrets set APP_URL=https://yourusername.github.io
+# or https://yourusername.github.io/research-tracker for a project repo
 supabase secrets set CRON_SECRET=your-long-random-string
 
 # Deploy
@@ -133,7 +139,7 @@ The `send-reminders.yml` workflow runs at **08:00 UTC daily**. You can also trig
 |----------|-------------|
 | `VITE_SUPABASE_URL` | Supabase project URL |
 | `VITE_SUPABASE_ANON_KEY` | Supabase anon/public API key |
-| `VITE_BASE_PATH` | Base path for GitHub Pages (e.g. `/research-tracker/`) |
+| `VITE_BASE_PATH` | Base path for GitHub Pages (auto-resolved in CI; `/` for `username.github.io`, otherwise e.g. `/research-tracker/`) |
 
 ### Edge Function (Supabase secrets)
 
@@ -141,7 +147,7 @@ The `send-reminders.yml` workflow runs at **08:00 UTC daily**. You can also trig
 |----------|-------------|
 | `RESEND_API_KEY` | Resend API key for sending emails |
 | `FROM_EMAIL` | Sender address (must be verified in Resend) |
-| `APP_URL` | Your deployed app URL (used in email links) |
+| `APP_URL` | Your deployed app URL (used in email links). Use `https://yourusername.github.io` for a `username.github.io` repo, otherwise `https://yourusername.github.io/research-tracker` |
 | `CRON_SECRET` | Secret to authenticate the daily cron call |
 | `SUPABASE_URL` | Auto-injected by Supabase |
 | `SUPABASE_SERVICE_ROLE_KEY` | Auto-injected by Supabase |

@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
-import { isPast, parseISO } from 'date-fns'
+import { parseISO } from 'date-fns'
 import { formatCountdown, getUrgency, URGENCY_COLORS } from '../lib/utils'
 
 export default function CountdownTimer({ dateStr, label, compact = false }) {
-  const [tick, setTick] = useState(0)
+  const [, setMinuteTick] = useState(0)
 
   useEffect(() => {
     if (!dateStr) return
-    const id = setInterval(() => setTick(t => t + 1), 60_000)
+    const id = setInterval(() => setMinuteTick(t => t + 1), 60_000)
     return () => clearInterval(id)
   }, [dateStr])
 

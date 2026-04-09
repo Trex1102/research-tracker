@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from './useAuth'
 import toast from 'react-hot-toast'
 
 export function useProfile() {
@@ -29,7 +29,7 @@ export function useUpdateProfile() {
     mutationFn: async (updates) => {
       const { data, error } = await supabase
         .from('profiles')
-        .upsert({ id: user.id, ...updates, updated_at: new Date().toISOString() })
+        .upsert({ id: user.id, email: user.email ?? null, ...updates, updated_at: new Date().toISOString() })
         .select()
         .single()
       if (error) throw error

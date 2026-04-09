@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Plus, Download, Inbox } from 'lucide-react'
-import { parseISO } from 'date-fns'
 import { useEntries } from '../hooks/useEntries'
 import EntryCard from '../components/EntryCard'
 import StatsBar from '../components/StatsBar'

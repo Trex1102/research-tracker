@@ -5,7 +5,6 @@ import { DEADLINE_FIELDS } from './constants'
  * Get the nearest upcoming deadline date from an entry.
  */
 export function getNearestDeadline(entry) {
-  const now = new Date()
   const dates = DEADLINE_FIELDS
     .map(f => entry[f.key] ? { key: f.key, label: f.label, date: parseISO(entry[f.key]) } : null)
     .filter(Boolean)
@@ -119,7 +118,7 @@ export function exportToCSV(entries) {
 }
 
 /**
- * Check if a duplicate entry exists (same name, ignoring case, within same year).
+ * Check if a duplicate entry exists by exact name match (case-insensitive).
  */
 export function checkDuplicate(entries, name, currentId = null) {
   const normalized = name.trim().toLowerCase()

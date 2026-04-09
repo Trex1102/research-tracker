@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ExternalLink, MapPin, Calendar, Tag } from 'lucide-react'
-import { parseISO, format } from 'date-fns'
+import { format } from 'date-fns'
 import StatusBadge from './StatusBadge'
 import CountdownTimer from './CountdownTimer'
 import { getNearestDeadline, fmtDate } from '../lib/utils'

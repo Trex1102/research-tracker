@@ -32,11 +32,24 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Resolve GitHub Pages base path
+        id: base_path
+        run: |
+          repo_name="${GITHUB_REPOSITORY##*/}"
+          repo_name_lower="${repo_name,,}"
+          owner_lower="${GITHUB_REPOSITORY_OWNER,,}"
+
+          if [ "$repo_name_lower" = "${owner_lower}.github.io" ]; then
+            echo "value=/" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=/${repo_name}/" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_BASE_PATH: ${{ steps.base_path.outputs.value }}
         run: npm run build
 
       - name: Upload Pages artifact

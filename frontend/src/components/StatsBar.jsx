@@ -1,4 +1,5 @@
-import { isThisMonth, parseISO, isPast } from 'date-fns'
+import { createElement } from 'react'
+import { isThisMonth } from 'date-fns'
 import { BarChart3, Clock, Send, CheckCircle } from 'lucide-react'
 import { getNearestDeadline } from '../lib/utils'
 
@@ -57,11 +58,11 @@ export default function StatsBar({ entries }) {
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {stats.map(({ label, value, icon: Icon, color, bg, sub }) => (
+      {stats.map(({ label, value, icon, color, bg, sub }) => (
         <div key={label} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-lg ${bg}`}>
-              <Icon size={18} className={color} />
+              {createElement(icon, { size: 18, className: color })}
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>

@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { createElement, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Plus, User, LogOut,
   Menu, FlaskConical, Calendar
 } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../hooks/useAuth'
 import DarkModeToggle from './DarkModeToggle'
 
 const navItems = [
@@ -27,7 +27,7 @@ function Sidebar({ initials, email, onNavClick, onSignOut }) {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {navItems.map(({ to, icon: Icon, label }) => (
+        {navItems.map(({ to, icon, label }) => (
           <NavLink
             key={to}
             to={to}
@@ -40,7 +40,7 @@ function Sidebar({ initials, email, onNavClick, onSignOut }) {
               }`
             }
           >
-            <Icon size={17} />
+            {createElement(icon, { size: 17 })}
             {label}
           </NavLink>
         ))}

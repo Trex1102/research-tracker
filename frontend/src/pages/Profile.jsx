@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../hooks/useAuth'
 import { useProfile, useUpdateProfile } from '../hooks/useProfile'
 import { useEntries } from '../hooks/useEntries'
 import LoadingSpinner from '../components/LoadingSpinner'

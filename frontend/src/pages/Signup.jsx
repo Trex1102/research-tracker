@@ -1,12 +1,11 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { FlaskConical, Mail, Lock, User, Eye, EyeOff } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../hooks/useAuth'
 import DarkModeToggle from '../components/DarkModeToggle'
 
 export default function Signup() {
   const { signUp } = useAuth()
-  const navigate = useNavigate()
 
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' })
   const [showPass, setShowPass] = useState(false)

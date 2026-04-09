@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AlertTriangle } from 'lucide-react'
 import { ENTRY_TYPES, RANKINGS, STATUSES, STATUS_LABELS, DEADLINE_FIELDS, PAPER_VISIBLE_STATUSES, STATUS_ORDER } from '../lib/constants'
@@ -47,20 +47,11 @@ export default function EntryForm({ entry }) {
   })
 
   const [errors, setErrors] = useState({})
-  const [duplicate, setDuplicate] = useState(null)
 
   const set = (key, val) => {
     setForm(f => ({ ...f, [key]: val }))
     if (errors[key]) setErrors(e => ({ ...e, [key]: '' }))
   }
-
-  useEffect(() => {
-    if (form.name.trim().length > 2) {
-      setDuplicate(checkDuplicate(allEntries, form.name, isEdit ? entry.id : null))
-    } else {
-      setDuplicate(null)
-    }
-  }, [form.name])
 
   const validate = () => {
     const errs = {}
@@ -68,9 +59,12 @@ export default function EntryForm({ entry }) {
     if (!form.type) errs.type = 'Type is required'
     if (!form.ranking) errs.ranking = 'Ranking is required'
     if (!form.status) errs.status = 'Status is required'
-    if (form.url && !/^https?:\/\//.test(form.url)) {
-      errs.url = 'URL must start with http:// or https://'
-    }
+    ;['url', 'paper_draft_link'].forEach(key => {
+      const value = form[key]?.trim()
+      if (value && !/^https?:\/\//i.test(value)) {
+        errs[key] = 'URL must start with http:// or https://'
+      }
+    })
     DEADLINE_FIELDS.forEach(({ key }) => {
       if (form[key] && !/^\d{4}-\d{2}-\d{2}$/.test(form[key])) {
         errs[key] = 'Invalid date format'
@@ -84,17 +78,37 @@ export default function EntryForm({ entry }) {
     const errs = validate()
     if (Object.keys(errs).length) { setErrors(errs); return }
 
+    const cleanedTags = [...new Set(
+      form.tags
+        ? form.tags.split(',').map(t => t.trim()).filter(Boolean)
+        : []
+    )]
+
     const payload = {
       ...form,
-      tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+      name: form.name.trim(),
+      url: form.url.trim() || null,
+      theme: form.theme.trim(),
+      location: form.location.trim(),
+      paper_title: form.paper_title.trim(),
+      paper_authors: form.paper_authors.trim(),
+      paper_abstract: form.paper_abstract.trim(),
+      paper_draft_link: form.paper_draft_link.trim() || null,
+      notes: form.notes.trim(),
+      tags: cleanedTags,
       ...(STATUS_ORDER[form.status] < STATUS_ORDER['submitted'] ? {
-        paper_title: '', paper_authors: '', paper_abstract: '', paper_draft_link: '',
+        paper_title: '', paper_authors: '', paper_abstract: '', paper_draft_link: null,
       } : {}),
     }
     DEADLINE_FIELDS.forEach(({ key }) => { if (!payload[key]) payload[key] = null })
 
     if (isEdit) {
-      await update.mutateAsync({ id: entry.id, data: payload, prevStatus: entry.status })
+      await update.mutateAsync({
+        id: entry.id,
+        data: payload,
+        prevStatus: entry.status,
+        prevStatusHistory: entry.status_history || [],
+      })
       navigate(`/entries/${entry.id}`)
     } else {
       const created = await create.mutateAsync(payload)
@@ -105,6 +119,9 @@ export default function EntryForm({ entry }) {
   const loading = create.isPending || update.isPending
   const showPaperFields = PAPER_VISIBLE_STATUSES.includes(form.status)
   const ic = (key) => inputClass(errors, key)
+  const duplicate = form.name.trim().length > 2
+    ? checkDuplicate(allEntries, form.name, entry?.id ?? null)
+    : null
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
